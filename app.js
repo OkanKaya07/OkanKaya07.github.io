@@ -59,11 +59,31 @@ const interpretations = {
     "path": "projects/07-pasilla-rnaseq/reports/pca.svg"
   }
 };
+
+function projectDetails(p) {
+  const title = p.en[0];
+  return `<details><summary>What the result means</summary><p>${escapeCode(interpretations[p.folder].caption)}</p><p><a href="${blobRoot+interpretations[p.folder].path}">Inspect the figure or data</a></p></details><details><summary>Step-by-step screenshots</summary><p>Read the source excerpt, then compare the measured output with the interpretation.</p>${[["source","1. Inspect the method"],["result","2. Read the output"]].map(([file,label])=>{const url=`https://raw.githubusercontent.com/OkanKaya07/data-science-portfolio/main/projects/${p.folder}/walkthrough/${file}.png`;return `<figure style="margin:1rem 0"><figcaption>${label}</figcaption><a href="${url}"><img src="${url}" alt="${label} for ${title}" loading="lazy" style="width:100%;height:auto"></a></figure>`}).join("")}<p><a href="${repository+p.folder}#step-by-step-walkthrough">Read the full walkthrough</a></p></details><details><summary>Inspect the code and results</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>${escapeCode(p.excerpt)}</code></pre><p><a href="${blobRoot+p.source}">Source code</a> · <a href="${blobRoot+p.output}">Result data</a></p></details>`;
+}
+
+const projectDialog = document.createElement('dialog');
+projectDialog.setAttribute('aria-labelledby', 'project-dialog-title');
+projectDialog.style.cssText = 'width:min(46rem,92vw);max-height:82vh;overflow:auto;margin:auto;padding:1.5rem;border:1px solid #ced6ca;border-radius:8px;background:var(--paper);color:var(--ink)';
+document.body.append(projectDialog);
+$('#project-grid').addEventListener('click', event => {
+  const trigger = event.target.closest('[data-project-details]');
+  if (!trigger) return;
+  const project = projects.find(item => item.folder === trigger.dataset.projectDetails);
+  projectDialog.innerHTML = `<form method="dialog" style="position:sticky;top:0;text-align:right"><button type="submit" autofocus style="padding:.35rem .75rem;cursor:pointer">Close</button></form><h2 id="project-dialog-title">${escapeCode(project.en[0])}</h2>${projectDetails(project)}`;
+  projectDialog.querySelector('details').open = true;
+  projectDialog.showModal();
+  projectDialog.scrollTop = 0;
+});
+
 function renderProjects() {
  const visible=projects.filter(p=>selectedFilter==='all'||p.category===selectedFilter);
  $('#project-grid').innerHTML=visible.map(p=>{
   const [title,category,description,detail]=p.en;
-  return `<article class="project-card"><div class="project-art art-${p.theme}" aria-hidden="true"><span class="art-label">OK / FIELD NOTES</span><svg viewBox="0 0 270 145">${drawings[p.art]}</svg><span class="art-number">0${projects.indexOf(p)+1}</span></div><div class="project-body"><p class="project-category">${category}</p><h3>${title}</h3><p>${description}</p><div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join('')}</div><details><summary>What the result means</summary><p>${escapeCode(interpretations[p.folder].caption)}</p><p><a href="${blobRoot+interpretations[p.folder].path}">Inspect the figure or data</a></p></details><details><summary>Step-by-step screenshots</summary><p>Read the source excerpt, then compare the measured output with the interpretation.</p>${[["source","1. Inspect the method"],["result","2. Read the output"]].map(([file,label])=>{const url=`https://raw.githubusercontent.com/OkanKaya07/data-science-portfolio/main/projects/${p.folder}/walkthrough/${file}.png`;return `<figure style="margin:1rem 0"><figcaption>${label}</figcaption><a href="${url}"><img src="${url}" alt="${label} for ${title}" loading="lazy" style="width:100%;height:auto"></a></figure>`}).join("")}<p><a href="${repository+p.folder}#step-by-step-walkthrough">Read the full walkthrough</a></p></details><details><summary>Inspect the code and results</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>${escapeCode(p.excerpt)}</code></pre><p><a href="${blobRoot+p.source}">Source code</a> · <a href="${blobRoot+p.output}">Result data</a></p></details><div class="project-bottom"><span>${detail}</span><a href="${repository+p.folder}" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div></div></article>`;
+  return `<article class="project-card"><div class="project-art art-${p.theme}" aria-hidden="true"><span class="art-label">OK / FIELD NOTES</span><svg viewBox="0 0 270 145">${drawings[p.art]}</svg><span class="art-number">0${projects.indexOf(p)+1}</span></div><div class="project-body"><p class="project-category">${category}</p><h3>${title}</h3><p>${description}</p><div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join('')}</div><button type="button" class="text-link" style="align-self:flex-start;margin:0 0 1rem;cursor:pointer" data-project-details="${p.folder}" aria-haspopup="dialog">Explore results &amp; screenshots ↗</button><div class="project-bottom"><span>${detail}</span><a href="${repository+p.folder}" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div></div></article>`;
  }).join('');
  $('#project-count').textContent=`${visible.length} project${visible.length === 1 ? '' : 's'}`;
 }
