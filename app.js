@@ -24,15 +24,46 @@ const projects = [
  { folder:'03-bike-demand',category:'code',art:'ml',theme:'ml',en:["Bike rental demand","MACHINE LEARNING","I compared scikit-learn models using four expanding time windows. On the final chronological holdout, gradient boosting missed by 725 rentals per day on average, compared with 2,290 for the training-mean baseline. The estimate uses observed weather.","725 vs. 2,290 rentals/day MAE"], source:"run.py#L132", output:"reports/bike_metrics.csv", excerpt:"for fold,(train,val) in enumerate(TimeSeriesSplit(n_splits=4).split(Xdev)):\n            model.fit(Xdev.iloc[train],ydev.iloc[train])\n            pred = model.predict(Xdev.iloc[val])",tags:['Python','Regression','Cross-validation'] },
  { folder:'04-excel-bike-operations',category:'analytics',art:'excel',theme:'excel',en:["Monthly bike operations in Excel","EXCEL DASHBOARD","I used Excel SUMIFS formulas to aggregate daily rentals by month and checked the report against its source. The totals matched across 731 days and 3,292,679 rentals, with a reconciliation difference of zero.","3,292,679 rentals reconciled"], source:"projects/04-excel-bike-operations/build_workbook.mjs#L37", output:"projects/04-excel-bike-operations/verification.json", excerpt:"`=SUMIFS('Daily source'!$D$6:$D$${end},${criteria})`,\n  `=SUMIFS('Daily source'!$E$6:$E$${end},${criteria})`,",tags:['Excel','Formulas','Dashboard'] },
  { folder:'05-python-air-quality',category:'code',art:'python',theme:'python',en:["Air-quality data pipeline","PYTHON APPLICATION","I used Python’s csv and sqlite3 modules to load sensor readings and handle missing values explicitly. Of 9,357 hourly records, 1,683 lacked a CO reading. Preserving missing readings keeps them from artificially lowering daily averages.","1,683 missing CO readings"], source:"projects/05-python-air-quality/air_quality.py#L33", output:"projects/05-python-air-quality/reports/quality_report.json", excerpt:"parsed = float(value.replace(',', '.'))\n    if parsed == -200:\n        return None",tags:['Python','SQLite','Unit tests'] },
- { folder:'06-r-bioinformatics',category:'bio',art:'bio',theme:'bio',en:["Leukemia expression analysis","R & BIOINFORMATICS","I used base R to compare expression across 38 samples. After Benjamini–Hochberg correction, 695 of 3,051 features had an adjusted p-value below 0.05. These are associations in one historical cohort.","695 features at adjusted p < 0.05"], source:"projects/06-r-bioinformatics/analyze.R#L33", output:"projects/06-r-bioinformatics/reports/summary.csv", excerpt:"pca <- prcomp(t(x[selected,]),center=TRUE,scale.=TRUE)",tags:['R','PCA','Multiple testing'] }
+ { folder:'06-r-bioinformatics',category:'bio',art:'bio',theme:'bio',en:["Leukemia expression analysis","R & BIOINFORMATICS","I used base R to compare expression across 38 samples. After Benjamini–Hochberg correction, 695 of 3,051 features had an adjusted p-value below 0.05. These are associations in one historical cohort.","695 features at adjusted p < 0.05"], source:"projects/06-r-bioinformatics/analyze.R#L33", output:"projects/06-r-bioinformatics/reports/summary.csv", excerpt:"pca <- prcomp(t(x[selected,]),center=TRUE,scale.=TRUE)",tags:['R','PCA','Multiple testing'] },
+ {"folder":"07-pasilla-rnaseq","category":"bio","art":"bio","theme":"bio","en":["Pasilla knockdown RNA-seq","RNA SEQUENCING","I used pandas to normalize gene counts from seven Drosophila libraries and NumPy to compare samples by PCA. Both knockdown status and read layout tracked major differences in expression.","8,148 genes retained"],"source":"projects/07-pasilla-rnaseq/analyze.py","output":"projects/07-pasilla-rnaseq/reports/samples.csv","excerpt":"U, s, _ = np.linalg.svd(X - X.mean(axis=0), full_matrices=False)","tags":["Python","RNA-seq","PCA"]}
 ];
 const blobRoot = 'https://github.com/OkanKaya07/data-science-portfolio/blob/main/';
 function escapeCode(text) { return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'); }
+const interpretations = {
+  "01-retail-analytics": {
+    "caption": "Each bar adds up eligible invoice lines for one month. November 2011 reached £1.50m across 2,769 orders, up 30.6% from October. December’s much shorter bar covers only nine days, so it cannot establish a fall in demand.",
+    "path": "reports/monthly_sales.csv"
+  },
+  "02-customer-segmentation": {
+    "caption": "Each dot represents a customer. Moving right means more days since the last purchase, and moving up means higher historical spend on a log scale. The higher-spend group had a median of six orders versus one in the other group. Frequency helped form the clusters even though it is absent from the chart axes.",
+    "path": "reports/segment_profiles.csv"
+  },
+  "03-bike-demand": {
+    "caption": "The gap between the two lines is the daily prediction error. On 29 October 2012, the model predicted 3,169 rentals and only 22 occurred. The 725-rental average error hides misses of this size. The chart identifies a day to investigate but cannot explain why demand fell.",
+    "path": "reports/bike_predictions.csv"
+  },
+  "04-excel-bike-operations": {
+    "caption": "The workbook aggregates trips, so the registered share of 81.17% describes trips taken by registered riders. One frequent rider can contribute many trips. The reconciled total of 3,292,679 checks the aggregation; it does not identify 3.29 million distinct riders.",
+    "path": "projects/04-excel-bike-operations/bike_operations.xlsx"
+  },
+  "05-python-air-quality": {
+    "caption": "On 10 March 2004, six observed hours averaged 1.97 mg/m³ CO. The coverage-qualified field is blank because the day falls short of 18 valid hours. On 11 March, 23 valid hours support reporting 2.24 mg/m³. A blank therefore means insufficient coverage, not clean air.",
+    "path": "projects/05-python-air-quality/reports/daily_summary.csv"
+  },
+  "06-r-bioinformatics": {
+    "caption": "Each PCA point represents one tumor. PC1 and PC2 together account for 32.38% of variation across the 500 selected features, so distance on this plot shows only part of the expression difference. In the feature comparison, a positive AML-minus-ALL difference means higher average expression in AML in this cohort. The 695 adjusted hits are features, not 695 independent biomarkers.",
+    "path": "projects/06-r-bioinformatics/reports/summary.csv"
+  },
+  "07-pasilla-rnaseq": {
+    "caption": "Each point is one library. Along PC1 (52.6%), all three knockdown samples sit apart from the four controls. Along PC2 (32.1%), the single-read samples sit apart from the paired-end samples. Both condition and sequencing layout matter when reading these seven samples.",
+    "path": "projects/07-pasilla-rnaseq/reports/pca.svg"
+  }
+};
 function renderProjects() {
  const visible=projects.filter(p=>selectedFilter==='all'||p.category===selectedFilter);
  $('#project-grid').innerHTML=visible.map(p=>{
   const [title,category,description,detail]=p.en;
-  return `<article class="project-card"><div class="project-art art-${p.theme}" aria-hidden="true"><span class="art-label">OK / FIELD NOTES</span><svg viewBox="0 0 270 145">${drawings[p.art]}</svg><span class="art-number">0${projects.indexOf(p)+1}</span></div><div class="project-body"><p class="project-category">${category}</p><h3>${title}</h3><p>${description}</p><div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join('')}</div><details><summary>Inspect the code and results</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>${escapeCode(p.excerpt)}</code></pre><p><a href="${blobRoot+p.source}">Source code</a> · <a href="${blobRoot+p.output}">Result data</a></p></details><div class="project-bottom"><span>${detail}</span><a href="${repository+p.folder}" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div></div></article>`;
+  return `<article class="project-card"><div class="project-art art-${p.theme}" aria-hidden="true"><span class="art-label">OK / FIELD NOTES</span><svg viewBox="0 0 270 145">${drawings[p.art]}</svg><span class="art-number">0${projects.indexOf(p)+1}</span></div><div class="project-body"><p class="project-category">${category}</p><h3>${title}</h3><p>${description}</p><div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join('')}</div><details><summary>What the result means</summary><p>${escapeCode(interpretations[p.folder].caption)}</p><p><a href="${blobRoot+interpretations[p.folder].path}">Inspect the figure or data</a></p></details><details><summary>Inspect the code and results</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><code>${escapeCode(p.excerpt)}</code></pre><p><a href="${blobRoot+p.source}">Source code</a> · <a href="${blobRoot+p.output}">Result data</a></p></details><div class="project-bottom"><span>${detail}</span><a href="${repository+p.folder}" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a></div></div></article>`;
  }).join('');
  $('#project-count').textContent=`${visible.length} project${visible.length === 1 ? '' : 's'}`;
 }
