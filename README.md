@@ -7,10 +7,12 @@ Live site: https://okankaya07.github.io/
 ## Features
 
 - Responsive layouts, keyboard navigation, and reduced-motion support.
-- Six projects linked to their real-data source repository.
+- Eight projects linked to their real-data source repository.
 - Grand Line, Golden Hour, and Night Voyage background presets.
 - Custom PNG/JPG/WebP backgrounds (up to 8 MB), saved locally in the visitor's browser. Images are never uploaded to a server.
 - No analytics, tracking scripts, external fonts, or build dependencies.
+
+[Visual Studio walkthrough](docs/visual-studio/README.md)
 
 ## Editing and preview
 
